@@ -1,6 +1,12 @@
 <template>
   <div>
-    <el-badge :hidden="unreadMsgCount === 0" :max="99" :value="unreadMsgCount" size="mini" type="primary">
+    <el-badge
+      :hidden="unreadMsgCount === 0"
+      :max="99"
+      :value="unreadMsgCount"
+      size="mini"
+      type="primary"
+    >
       <el-link style="height: 100%" @click="toggleDrawer">
         <svg-icon icon-class="remind" />
       </el-link>
@@ -16,9 +22,13 @@
       @open="getMessages"
     >
       <div slot="title">
-        <span>{{ $t('SiteMessage') }}</span>
-        <div v-if="unreadMsgCount !== 0" class="msg-list-all-read-btn" @click.stop="oneClickRead(messages)">
-          <a style="vertical-align: sub;"> {{ $t('AllClickRead') }}</a>
+        <span>{{ $t("SiteMessage") }}</span>
+        <div
+          v-if="unreadMsgCount !== 0"
+          class="msg-list-all-read-btn"
+          @click.stop="oneClickRead(messages)"
+        >
+          <a style="vertical-align: sub"> {{ $t("AllClickRead") }}</a>
         </div>
       </div>
       <div v-if="unreadMsgCount !== 0" class="msg-list">
@@ -33,15 +43,21 @@
         >
           <el-row :gutter="10" class="msg-item-head">
             <el-col :span="15" class="msg-item-head-type">
-              <i :class="msg['has_read'] ? 'fa-envelope-open-o' : 'fa-envelope'" class="fa msg-icon" />
+              <i
+                :class="msg['has_read'] ? 'fa-envelope-open-o' : 'fa-envelope'"
+                class="fa msg-icon"
+              />
               {{ msg.content.subject }}
             </el-col>
             <el-col :span="9">
-              <span v-if="hoverMsgId !== msg.id || msg['has_read']" class="msg-item-head-time">
+              <span
+                v-if="hoverMsgId !== msg.id || msg['has_read']"
+                class="msg-item-head-time"
+              >
                 {{ formatDate(msg.date_created) }}
               </span>
               <span v-else class="msg-item-read-btn" @click.stop="markAsRead([msg])">
-                <a>{{ $t('MarkAsRead') }}</a>
+                <a>{{ $t("MarkAsRead") }}</a>
               </span>
             </el-col>
           </el-row>
@@ -51,7 +67,7 @@
         </div>
       </div>
       <div v-else class="no-msg">
-        {{ $t('NoUnreadMsg') }}
+        {{ $t("NoUnreadMsg") }}
       </div>
     </el-drawer>
 
@@ -78,131 +94,137 @@
 </template>
 
 <script>
-import { toSafeLocalDateStr } from '@/utils/time'
-import Dialog from '@/components/Dialog'
-import MarkDown from '@/components/Widgets/MarkDown'
+import { toSafeLocalDateStr } from "@/utils/time";
+import Dialog from "@/components/Dialog";
+import MarkDown from "@/components/Widgets/MarkDown";
 
 export default {
-  name: 'SiteMessages',
+  name: "SiteMessages",
   components: {
     Dialog,
-    MarkDown
+    MarkDown,
   },
   data() {
     return {
       show: false,
       messages: [],
-      hoverMsgId: '',
+      hoverMsgId: "",
       msgDetailVisible: false,
       currentMsg: null,
-      unreadMsgCount: 0
-    }
+      unreadMsgCount: 0,
+    };
   },
   computed: {
     width() {
-      return this.$store.state.app.device === 'mobile' ? '70%' : '380px'
-    }
+      return this.$store.state.app.device === "mobile" ? "70%" : "380px";
+    },
   },
   mounted() {
-    this.enablePullMsgCount()
+    this.enablePullMsgCount();
   },
   methods: {
     handleClose() {
-      this.show = false
+      this.show = false;
     },
     toggleDrawer() {
-      this.show = !this.show
+      this.show = !this.show;
     },
     showMsgDetail(msg) {
-      this.currentMsg = msg
-      this.msgDetailVisible = true
+      this.currentMsg = msg;
+      this.msgDetailVisible = true;
     },
     getMessages() {
-      const url = '/api/v1/notifications/site-messages/?offset=0&limit=15&has_read=false'
-      this.$axios.get(url).then(resp => {
-        this.messages = [...resp.results]
-        this.unreadMsgCount = resp.count
-      })
+      const url = "/api/v1/notifications/site-messages/?offset=0&limit=15&has_read=false";
+      this.$axios.get(url).then((resp) => {
+        this.messages = [...resp.results];
+        this.unreadMsgCount = resp.count;
+      });
     },
     formatDate(s) {
       if (!s) {
-        return ''
+        return "";
       }
-      const d = new Date(s)
-      const now = new Date()
-      if (now.getTime() - d.getTime() > (3600 * 24 * 7) * 1000) {
-        return toSafeLocalDateStr(s)
+      const d = new Date(s);
+      const now = new Date();
+      if (now.getTime() - d.getTime() > 3600 * 24 * 7 * 1000) {
+        return toSafeLocalDateStr(s);
       } else {
-        return this.$moment(d).fromNow()
+        return this.$moment(d).locale("en").fromNow();
       }
     },
     oneClickRead(msgs) {
-      this.$confirm(this.$tc('OneClickReadMsg'), this.$tc('Info'), {
-        type: 'warning',
-        confirmButtonClass: 'el-button--danger',
-        beforeClose: async(action, instance, done) => {
-          if (action !== 'confirm') return done()
-          this.markAsReadAll(msgs)
-          done()
-        }
+      this.$confirm(this.$tc("OneClickReadMsg"), this.$tc("Info"), {
+        type: "warning",
+        confirmButtonClass: "el-button--danger",
+        beforeClose: async (action, instance, done) => {
+          if (action !== "confirm") return done();
+          this.markAsReadAll(msgs);
+          done();
+        },
       }).catch(() => {
         /* 取消*/
-      })
+      });
     },
     markAsReadAll(msgs) {
-      const url = `/api/v1/notifications/site-messages/mark-as-read-all/`
-      this.$axios.patch(url, {}).then(res => {
-        this.msgDetailVisible = false
-        this.getMessages()
-      }).catch(err => {
-        this.$message(err.detail)
-      })
+      const url = `/api/v1/notifications/site-messages/mark-as-read-all/`;
+      this.$axios
+        .patch(url, {})
+        .then((res) => {
+          this.msgDetailVisible = false;
+          this.getMessages();
+        })
+        .catch((err) => {
+          this.$message(err.detail);
+        });
     },
     markAsRead(msgs) {
-      const url = `/api/v1/notifications/site-messages/mark-as-read/`
-      const msgIds = []
+      const url = `/api/v1/notifications/site-messages/mark-as-read/`;
+      const msgIds = [];
       for (const item of msgs) {
-        msgIds.push(item.id)
+        msgIds.push(item.id);
       }
-      this.$axios.patch(url, { ids: msgIds }).then(res => {
-        this.msgDetailVisible = false
-        this.getMessages()
-      }).catch(err => {
-        this.$message(err.detail)
-      })
+      this.$axios
+        .patch(url, { ids: msgIds })
+        .then((res) => {
+          this.msgDetailVisible = false;
+          this.getMessages();
+        })
+        .catch((err) => {
+          this.$message(err.detail);
+        });
     },
     cancelRead() {
-      this.msgDetailVisible = false
+      this.msgDetailVisible = false;
     },
     enablePullMsgCount() {
-      const scheme = document.location.protocol === 'https:' ? 'wss' : 'ws'
-      const port = document.location.port ? ':' + document.location.port : ''
-      const url = '/ws/notifications/site-msg/'
-      const wsURL = scheme + '://' + document.location.hostname + port + url
+      const scheme = document.location.protocol === "https:" ? "wss" : "ws";
+      const port = document.location.port ? ":" + document.location.port : "";
+      const url = "/ws/notifications/site-msg/";
+      const wsURL = scheme + "://" + document.location.hostname + port + url;
 
-      const ws = new WebSocket(wsURL)
+      const ws = new WebSocket(wsURL);
       ws.onopen = (event) => {
-        this.$log.debug('Websocket connected: ', event)
-      }
+        this.$log.debug("Websocket connected: ", event);
+      };
       ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data)
-          this.$log.debug('Data: ', data)
-          const unreadCount = data['unread_count']
+          const data = JSON.parse(event.data);
+          this.$log.debug("Data: ", data);
+          const unreadCount = data["unread_count"];
           if (unreadCount !== undefined) {
-            this.unreadMsgCount = unreadCount
+            this.unreadMsgCount = unreadCount;
           }
         } catch (e) {
-          this.$log.debug('Recv site message error')
+          this.$log.debug("Recv site message error");
         }
-      }
+      };
       ws.onerror = (error) => {
-        this.$message.error(this.$tc('ConnectWebSocketError'))
-        this.$log.debug('site message ws error: ', error)
-      }
-    }
-  }
-}
+        this.$message.error(this.$tc("ConnectWebSocketError"));
+        this.$log.debug("site message ws error: ", error);
+      };
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -309,18 +331,16 @@ export default {
       font-size: 12px;
     }
   }
-
 }
 
 .msg-detail {
-
   .msg-detail-time {
     font-weight: 400;
     line-height: 1.1;
     float: right;
-    color: var(--N600, #646A73);
+    color: var(--N600, #646a73);
     text-align: right;
-    font-feature-settings: 'clig' off, 'liga' off;
+    font-feature-settings: "clig" off, "liga" off;
     font-size: 14px;
     font-style: normal;
   }
@@ -329,7 +349,7 @@ export default {
     line-height: 24px;
 
     .el-dialog__title {
-      color: var(--neutral-900, #1F2329);
+      color: var(--neutral-900, #1f2329);
       font-size: 16px;
       font-style: normal;
       font-weight: 500;
@@ -344,14 +364,14 @@ export default {
       height: 618px;
       flex-shrink: 0;
       border-radius: 4px;
-      background: #FFF;
+      background: #fff;
       font-style: normal;
       font-weight: 400;
       line-height: 24px; /* 150% */
 
       .title {
         margin-bottom: 8px;
-        color: var(--neutral-900, #1F2329);
+        color: var(--neutral-900, #1f2329);
         font-size: 16px;
         font-weight: 500;
       }
@@ -363,7 +383,7 @@ export default {
           display: inline-flex;
           flex-direction: column;
           align-items: flex-start;
-          color: var(--neutral-900, #1F2329);
+          color: var(--neutral-900, #1f2329);
           font-size: 16px;
           font-style: normal;
           font-weight: 500;
@@ -373,20 +393,20 @@ export default {
         width: 100%;
         display: inline-block;
         border-radius: 4px;
-        background: var(--N100, #F5F6F7);
+        background: var(--N100, #f5f6f7);
       }
 
       .action_group {
         margin-top: 8px;
 
         .view-link {
-          color: #3370FF !important;
+          color: #3370ff !important;
           text-align: right;
           font-size: 14px;
           border-radius: 4px;
 
           &:hover {
-            background: rgba(51, 112, 255, 0.20);
+            background: rgba(51, 112, 255, 0.2);
             display: inline-block;
             border-radius: 4px;
           }
@@ -400,7 +420,7 @@ export default {
 
         .field-name {
           margin: 4px 0 4px 16px;
-          color: var(--N600, #646A73);
+          color: var(--N600, #646a73);
           display: inline-block;
 
           strong {
@@ -409,7 +429,7 @@ export default {
         }
 
         .field-value {
-          color: var(--N900, #1F2329);
+          color: var(--N900, #1f2329);
           display: inline-block;
         }
       }

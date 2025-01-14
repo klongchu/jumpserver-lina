@@ -11,15 +11,25 @@
   >
     <div class="box">
       <div class="head">
-        <img :src="logoSrc" alt="logo" class="sidebar-logo-text" height="70">
+        <img :src="logoSrc" alt="logo" class="sidebar-logo-text" height="70" />
       </div>
-      <tr v-for="item of items" v-show="item.has || item.has === undefined" :key="item.label" class="text">
-        <td class="title">{{ item.label }}: </td>
+      <tr
+        v-for="item of items"
+        v-show="item.has || item.has === undefined"
+        :key="item.label"
+        class="text"
+      >
+        <td class="title">{{ item.label }}:</td>
         <td class="value">{{ item.value }}</td>
       </tr>
       <el-divider class="divider" />
       <div class="text">
-        <span v-for="(i, index) in actions" :key="index" class="text-link" @click="onClick(i.name)">
+        <span
+          v-for="(i, index) in actions"
+          :key="index"
+          class="text-link"
+          @click="onClick(i.name)"
+        >
           <i :class="i.icon" class="icon" />{{ i.label }}
           <el-divider v-if="index !== actions.length - 1" direction="vertical" />
         </span>
@@ -29,102 +39,95 @@
 </template>
 
 <script>
-import Dialog from '@/components/Dialog'
-import { mapGetters } from 'vuex'
+import Dialog from "@/components/Dialog";
+import { mapGetters } from "vuex";
 
 export default {
   components: {
-    Dialog
+    Dialog,
   },
   props: {
     visible: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       actions: [
         {
-          name: 'github',
-          label: 'GitHub',
-          icon: 'fa fa-github'
+          name: "github",
+          label: "GitHub",
+          icon: "fa fa-github",
         },
         {
-          name: 'download',
-          label: this.$tc('DownloadCenter'),
-          icon: 'fa fa-download'
-        }
-      ]
-    }
+          name: "download",
+          label: this.$tc("DownloadCenter"),
+          icon: "fa fa-download",
+        },
+      ],
+    };
   },
   computed: {
-    ...mapGetters([
-      'publicSettings'
-    ]),
+    ...mapGetters(["publicSettings"]),
     iVisible: {
       set(val) {
-        this.$emit('update:visible', val)
+        this.$emit("update:visible", val);
       },
       get() {
-        return this.visible
-      }
+        return this.visible;
+      },
     },
     versionType() {
-      return this.hasXPack ? this.$t('EnterpriseEdition') : this.$tc('CommunityEdition') + ' GPLv3'
+      return this.hasXPack
+        ? this.$t("EnterpriseEdition")
+        : this.$tc("CommunityEdition") + " GPLv3";
     },
     items() {
       return [
         {
-          label: this.$t('Product'),
-          value: 'JumpServer ' + this.versionType
+          label: this.$t("Product"),
+          value: "BUDHOSP",
         },
         {
-          label: this.$t('Version'),
-          value: 'version-dev'
+          label: this.$t("Version"),
+          value: "version-dev",
         },
         {
-          label: this.$t('PermissionCompany'),
+          label: this.$t("PermissionCompany"),
           value: this.corporation,
-          has: this.hasXPack
+          has: this.hasXPack,
         },
         {
-          label: 'Copyright',
+          label: "Copyright",
           value: this.copyright,
-          has: !this.hasXPack
-        }
-      ]
+          has: !this.hasXPack,
+        },
+      ];
     },
     corporation() {
-      return this.publicSettings.XPACK_LICENSE_INFO.corporation
+      return this.publicSettings.XPACK_LICENSE_INFO.corporation;
     },
     copyright() {
-      if (this.corporation.indexOf('FIT2CLOUD 飞致云') > -1) {
-        return this.corporation
-      } else {
-        return ''
-      }
+      return "BUDHOSP";
     },
     logoSrc() {
-      return this.publicSettings['INTERFACE']['logo_logout']
+      return this.publicSettings["INTERFACE"]["logo_logout"];
     },
     hasXPack() {
-      return this.publicSettings.XPACK_LICENSE_IS_VALID
-    }
+      return this.publicSettings.XPACK_LICENSE_IS_VALID;
+    },
   },
   methods: {
     onClick(type) {
       switch (type) {
-        case 'download':
-          window.open('/core/download/', '_blank')
-          break
-        case 'github':
-          window.open('https://github.com/jumpserver/jumpserver', '_blank')
-          break
+        case "download":
+          window.open("https://budhosp.go.th", "_blank");
+          break;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
